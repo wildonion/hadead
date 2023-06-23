@@ -105,7 +105,7 @@ impl Config{
         
         if is_rate_limited{
             
-            error!("⛔ Access Denied");
+            error!("⛔ Access Denied, ☕ chill for {:?} seconds", (chill_zone_duration/1000) as u64);
             Ok(true)
             
         
