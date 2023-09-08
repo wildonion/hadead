@@ -9,6 +9,7 @@ use std::env;
 use dotenv::dotenv;
 use uuid::Uuid;
 use env_logger::Env;
+use wallexerr::*;
 
 
 #[tokio::main]
@@ -29,6 +30,43 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         redis_username: None,
         chill_zone_duration /* default is 5 miliseconds */
     };
+
+    /* --------------- */
+    /* wallexerr tests */
+    /* --------------- */
+    let mut data = DataBucket{
+        value: "json stringify data".to_string(), /* json stringify */ 
+        signature: "".to_string(),
+        signed_at: 0,
+    };
+    let stringify_data = serde_json::to_string_pretty(&data).unwrap();
+
+    /* wallet operations */
+
+    let contract = Contract::new_with_ed25519("0xDE6D7045Df57346Ec6A70DfE1518Ae7Fe61113f4");
+    
+    let signature_hex = Wallet::ed25519_sign(stringify_data.clone(), contract.wallet.ed25519_secret_key.as_ref().unwrap());
+    
+    let verify_res = Wallet::verify_ed25519_signature(signature_hex.clone().unwrap(), stringify_data, contract.wallet.ed25519_public_key.unwrap());
+
+    let keypair = Wallet::retrieve_ed25519_keypair(
+        /* 
+            unwrap() takes the ownership of the type hence we must borrow 
+            the type before calling it using as_ref() 
+        */
+        contract.wallet.ed25519_secret_key.unwrap().as_str()
+    );
+
+    data.signature = signature_hex.unwrap();
+    data.signed_at = chrono::Local::now().timestamp_nanos();
+
+    let res = match verify_res{
+        Ok(is_verified) => {
+            Ok(())
+        },
+        Err(e) => Err(e)
+    };
+
 
 
     

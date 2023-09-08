@@ -22,6 +22,7 @@ lazy_static = "1"
 serde = {version = "1", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
 once_cell = "1.17.1"
+wallexerr = "0.1.3"
 
 
 
