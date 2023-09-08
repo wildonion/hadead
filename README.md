@@ -15,4 +15,8 @@ cargo run --bin had
 
 ## 🚧 WIP
 
-* cookie session with private key based on wallexerr keypairs for time hash api and rate limiting by signing a request using the private key
+* cookie session with private key based on [wallexerr](https://crates.io/crates/wallexerr) for time hash api and rate limiting by signing a request using the private key
+
+* add cli arg setups
+
+* publish to crate
