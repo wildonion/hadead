@@ -35,7 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     /* wallexerr tests */
     /* --------------- */
     let mut data = DataBucket{
-        value: "json stringify data".to_string(), /* json stringify */ 
+        value: serde_json::to_string_pretty(&had_instance).unwrap(), /* json stringify of config had instance */ 
         signature: "".to_string(),
         signed_at: 0,
     };
@@ -47,7 +47,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     
     let signature_hex = Wallet::ed25519_sign(stringify_data.clone(), contract.wallet.ed25519_secret_key.as_ref().unwrap());
     
-    let verify_res = Wallet::verify_ed25519_signature(signature_hex.clone().unwrap(), stringify_data, contract.wallet.ed25519_public_key.unwrap());
+    let verify_res = Wallet::verify_ed25519_signature(signature_hex.clone().unwrap(), stringify_data, contract.wallet.ed25519_public_key.clone().unwrap());
 
     let keypair = Wallet::retrieve_ed25519_keypair(
         /* 
@@ -57,22 +57,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         contract.wallet.ed25519_secret_key.unwrap().as_str()
     );
 
-    data.signature = signature_hex.unwrap();
-    data.signed_at = chrono::Local::now().timestamp_nanos();
-
-    let res = match verify_res{
-        Ok(is_verified) => {
-            Ok(())
-        },
-        Err(e) => Err(e)
-    };
-
-
+    /* fill the signature and signed_at fields if the signature was valid */
+    if verify_res.is_ok(){
+        data.signature = signature_hex.unwrap();
+        data.signed_at = chrono::Local::now().timestamp_nanos();
+    }
 
     
     // tokio::spawn(async move{
 
-        let id = "e2b0f1ad-db86-4126-87ca-d84d10e46343".to_string();
+        let id = contract.wallet.ed25519_public_key.clone().unwrap();
         let is_limited = had_instance.check(&id).await.unwrap();
         
     // });

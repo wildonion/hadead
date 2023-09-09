@@ -1,9 +1,9 @@
+
+
+
 use log::error;
 use log::info;
 use serde::{Serialize, Deserialize};
-
-
-
 use redis::RedisError;
 use redis::FromRedisValue;
 use redis::JsonAsyncCommands;
@@ -17,7 +17,7 @@ use std::collections::HashMap;
 
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config{
     pub redis_password: Option<String>,
     pub redis_username: Option<String>,
@@ -35,7 +35,7 @@ impl Config{
         redis_port: &str, 
         chill_zone_duration: u64) -> Self{
 
-        Self { 
+        Config { 
             redis_password: Some(redis_password.to_string()), 
             redis_username: Some(redis_username.to_string()), 
             redis_host: redis_host.to_string(), 
@@ -46,6 +46,14 @@ impl Config{
     }
 
     pub async fn check(&self, peer_unique_identifire: &str) -> Result<bool, RedisError>{
+
+        let Config { 
+            redis_password, 
+            redis_username, 
+            redis_host, 
+            redis_port, 
+            chill_zone_duration 
+        } = self; /* unpacking self */
 
         /* 
             since self is behind a shared reference means there is borrow of self is exists
@@ -76,7 +84,7 @@ impl Config{
         };
         
         
-        /* rate limiter based on doer id */
+        /* rate limiter based on peer_unique_identifire */
         
         let chill_zone_duration = self.chill_zone_duration; //// 5 seconds chillzone
         let now = chrono::Local::now().timestamp_millis() as u64;
