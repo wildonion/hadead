@@ -46,9 +46,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     let mut contract = Contract::new_with_ed25519("0xDE6D7045Df57346Ec6A70DfE1518Ae7Fe61113f4");
     Wallet::save_to_json(&contract.wallet, "ed25519").unwrap();
     
-    let signature_hex = Wallet::ed25519_sign(stringify_data.clone(), contract.wallet.ed25519_secret_key.as_ref().unwrap());
+    let signature_hex = Wallet::ed25519_sign(stringify_data.clone().as_str(), contract.wallet.ed25519_secret_key.as_ref().unwrap().as_str());
     
-    let verify_res = Wallet::verify_ed25519_signature(signature_hex.clone().unwrap(), stringify_data, contract.wallet.ed25519_public_key.clone().unwrap());
+    let verify_res = Wallet::verify_ed25519_signature(signature_hex.clone().unwrap().as_str(), stringify_data.as_str(), contract.wallet.ed25519_public_key.clone().unwrap().as_str());
 
     let keypair = Wallet::retrieve_ed25519_keypair(
         /* 
