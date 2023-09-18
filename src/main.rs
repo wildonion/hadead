@@ -43,7 +43,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
 
     /* wallet operations */
 
-    let contract = Contract::new_with_ed25519("0xDE6D7045Df57346Ec6A70DfE1518Ae7Fe61113f4");
+    let mut contract = Contract::new_with_ed25519("0xDE6D7045Df57346Ec6A70DfE1518Ae7Fe61113f4");
     Wallet::save_to_json(&contract.wallet, "ed25519").unwrap();
     
     let signature_hex = Wallet::ed25519_sign(stringify_data.clone(), contract.wallet.ed25519_secret_key.as_ref().unwrap());
@@ -62,6 +62,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
     if verify_res.is_ok(){
         data.signature = signature_hex.unwrap();
         data.signed_at = chrono::Local::now().timestamp_nanos();
+
+        contract.data = Some(data);
     }
 
     
