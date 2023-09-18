@@ -39,7 +39,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         signature: "".to_string(),
         signed_at: 0,
     };
-    let stringify_data = serde_json::to_string_pretty(&data).unwrap();
+    let stringify_data = serde_json::to_string_pretty(&data.value).unwrap();
 
     /* wallet operations */
 
