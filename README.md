@@ -23,6 +23,4 @@ cargo publish
 
 ## 🚧 WIP
 
-* cookie session with private key based on [wallexerr](https://crates.io/crates/wallexerr) for time hash api and rate limiting by signing a request using the private key
-
-* publish to crate
+* test and publish to crate
