@@ -1,44 +1,32 @@
 [package]
 name = "had"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["wildonion <abarmardeatashyne@gmail.com>"]
 description = "Redis Rate Limiter using wallexerr"
-homepage = "https://github.com/wildonion/gem/"
-keywords = ["redis", "ratelimiter"]
+homepage = "https://github.com/wildonion/had/"
+keywords = ["redis", "ratelimiter", "wallexerr", "ed25519"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/wildonion/had/"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
 redis = { version = "0.23.0", features = ["tokio-comp", "cluster-async", "json"] }
 futures = "0.3"
 futures-util = "0.3"
-rayon = "1"
-uuid = { version = "1", features = ["serde", "v4"] }
-borsh = "0.10"
 serde_json = "1"
-pretty_env_logger = "0.4"
 env_logger = "0.10.0"
-dotenv = "0.15"
 log = "0.4"
-lazy_static = "1"
 serde = {version = "1", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
-once_cell = "1.17.1"
-wallexerr = "0.1.9"
-
-
-
-[[bin]]
-name = "had"
-path = "src/main.rs"
+wallexerr = "0.2.0"
 
 
 [lib]
-name = "ratelimiter"
+# libraries don't have entry points, you can't run them,they're used for functionality sharing like binding a .wasm into js codes
+# we need lib.rs and crate type of cdylib for none binary like .wasm, .so, .dylib and .dll files or for tests
+crate-type = ["cdylib", "rlib"]
+name = "had"
 path = "src/lib.rs"
 
 [profile.release]

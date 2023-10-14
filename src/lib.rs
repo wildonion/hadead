@@ -1,8 +1,9 @@
 
 
-
-use log::error;
 use log::info;
+use std::env;
+use env_logger::Env;
+use log::error;
 use serde::{Serialize, Deserialize};
 use redis::RedisError;
 use redis::FromRedisValue;
@@ -10,20 +11,19 @@ use redis::JsonAsyncCommands;
 use redis::cluster::ClusterClient;
 use redis::AsyncCommands; //// this trait is required to be imported in here to call set() methods on the cluster connection
 use redis::RedisResult;
-use std::env;
-use dotenv::dotenv;
 use std::collections::HashMap;
 use wallexerr::*;
 
 
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Config{
     pub redis_password: Option<String>,
     pub redis_username: Option<String>,
     pub redis_host: String,
     pub redis_port: String,
-    pub chill_zone_duration: u64,
+    pub chill_zone_duration_in_seconds: u64,
+    pub id: Option<String>
 }
 
 
@@ -33,14 +33,25 @@ impl Config{
         redis_username: &str, 
         redis_host: &str, 
         redis_port: &str, 
-        chill_zone_duration: u64) -> Self{
+        chill_zone_duration_in_seconds: u64) -> Self{
+
+        let had_instance = serde_json::json!({
+            "redis_username": redis_username,
+            "redis_host": redis_host,
+            "redis_port": redis_port,
+            "chill_zone_duration_in_seconds": chill_zone_duration_in_seconds
+        });
+
+        let contract = generate_ed25519_contract(had_instance.as_str().unwrap());
+        let id = contract.wallet.ed25519_public_key.clone().unwrap();
 
         Config { 
             redis_password: Some(redis_password.to_string()), 
             redis_username: Some(redis_username.to_string()), 
             redis_host: redis_host.to_string(), 
             redis_port: redis_port.to_string(),
-            chill_zone_duration
+            chill_zone_duration_in_seconds,
+            id: Some(id)
         }
 
     }
@@ -52,7 +63,8 @@ impl Config{
             redis_username, 
             redis_host, 
             redis_port, 
-            chill_zone_duration 
+            chill_zone_duration_in_seconds,
+            id
         } = self; /* unpacking self */
 
         /* 
@@ -86,11 +98,11 @@ impl Config{
         
         /* rate limiter based on peer_unique_identifire */
         
-        let chill_zone_duration = self.chill_zone_duration; //// 5 seconds chillzone
+        let chill_zone_duration_in_seconds = self.chill_zone_duration_in_seconds * 1000; //// 5 seconds chillzone
         let now = chrono::Local::now().timestamp_millis() as u64;
         let mut is_rate_limited = false;
         
-        let redis_result_had: RedisResult<String> = redis_conn.get("had").await;
+        let redis_result_had: RedisResult<String> = redis_conn.get(peer_unique_identifire).await;
         let mut redis_had = match redis_result_had{
             Ok(data) => {
                 let rl_data = serde_json::from_str::<HashMap<String, u64>>(data.as_str()).unwrap();
@@ -99,13 +111,13 @@ impl Config{
             Err(e) => {
                 let empty_had = HashMap::<String, u64>::new();
                 let rl_data = serde_json::to_string(&empty_had).unwrap();
-                let _: () = redis_conn.set("had", rl_data).await.unwrap();
+                let _: () = redis_conn.set(peer_unique_identifire, rl_data).await.unwrap();
                 HashMap::new()
             }
         };
         
         if let Some(last_used) = redis_had.get(peer_unique_identifire){
-            if now - *last_used < chill_zone_duration{
+            if now - *last_used < chill_zone_duration_in_seconds{
                 is_rate_limited = true;
             }
         }
@@ -113,8 +125,8 @@ impl Config{
         
         if is_rate_limited{
             
-            error!("⛔ Access Denied, ☕ chill for {:?} seconds", (chill_zone_duration/1000) as u64);
-            Ok(true)
+            error!("⛔ Access Denied, ☕ chill for {:?} seconds", (chill_zone_duration_in_seconds/1000) as u64);
+            Ok(true) // rate limited
             
         
         } else{
@@ -123,10 +135,10 @@ impl Config{
             // this will be used to handle shared state between clusters
             redis_had.insert(peer_unique_identifire.to_string(), now); //// updating the redis rate limiter map
             let rl_data = serde_json::to_string(&redis_had).unwrap();
-            let _: () = redis_conn.set("had", rl_data).await.unwrap(); //// writing to redis ram
+            let _: () = redis_conn.set(peer_unique_identifire, rl_data).await.unwrap(); //// writing to redis ram
 
             info!("🔓 Access Granted");
-            Ok(false)
+            Ok(false) // not rate limited
             
         }
 
@@ -137,19 +149,19 @@ impl Config{
 }
 
 
-pub fn generate_ed25519_contract(had_instance: self::Config) -> wallexerr::Contract{
+fn generate_ed25519_contract(had_instance: &str) -> wallexerr::Contract{
 
     /* --------------------------------------- */
     /*          wallexerr operations           */
     /* --------------------------------------- */
     let mut data = DataBucket{
-        value: serde_json::to_string_pretty(&had_instance).unwrap(), /* json stringify of config had instance */ 
+        value: had_instance.to_string(), /* json stringify of config had instance */ 
         signature: "".to_string(),
         signed_at: 0,
     };
     let stringify_data = serde_json::to_string_pretty(&data.value).unwrap();
 
-    let mut contract = Contract::new_with_ed25519("0xDE6D7045Df57346Ec6A70DfE1518Ae7Fe61113f4");
+    let mut contract = Contract::new_with_ed25519("");
     Wallet::save_to_json(&contract.wallet, "ed25519").unwrap();
     
     let signature_hex = Wallet::ed25519_sign(stringify_data.clone().as_str(), contract.wallet.ed25519_secret_key.as_ref().unwrap().as_str());
