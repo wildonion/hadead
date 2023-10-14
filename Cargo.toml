@@ -1,5 +1,5 @@
 [package]
-name = "had"
+name = "hadead"
 version = "0.1.1"
 edition = "2021"
 authors = ["wildonion <abarmardeatashyne@gmail.com>"]
@@ -26,7 +26,7 @@ wallexerr = "0.2.0"
 # libraries don't have entry points, you can't run them,they're used for functionality sharing like binding a .wasm into js codes
 # we need lib.rs and crate type of cdylib for none binary like .wasm, .so, .dylib and .dll files or for tests
 crate-type = ["cdylib", "rlib"]
-name = "had"
+name = "hadead"
 path = "src/lib.rs"
 
 [profile.release]
