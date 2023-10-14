@@ -4,10 +4,10 @@ version = "0.1.1"
 edition = "2021"
 authors = ["wildonion <abarmardeatashyne@gmail.com>"]
 description = "Redis Rate Limiter using wallexerr"
-homepage = "https://github.com/wildonion/had/"
+homepage = "https://github.com/wildonion/hadead/"
 keywords = ["redis", "ratelimiter", "wallexerr", "ed25519"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/wildonion/had/"
+repository = "https://github.com/wildonion/hadead/"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
