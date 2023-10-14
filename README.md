@@ -24,25 +24,36 @@ cargo publish
 ## 🧪 Test
 
 ```rust
-env_logger::init_from_env(Env::default().default_filter_or("info")); /* is required to see info!() and error!() logs */
-let redis_password = "REDIS_PASSWORD".to_string();
-let redis_username = "REDIS_USERNAME".to_string();
-let redis_host = "REDIS_HOST".to_string();
-let redis_port = "REDIS_PORT".to_string();
-let chill_zone_duration_in_seconds = 5;
+use hadead::*;
+use once_cell::sync::Lazy;
 
-let had_instance = self::Config{
-    redis_host,
-    redis_port,
-    redis_password: Some(redis_password),
-    redis_username: None,
-    chill_zone_duration_in_seconds, /* default is 5 miliseconds */
-    id: None
-};
+pub static HADEAD: Lazy<Config> = Lazy::new(||{
 
-let id = had_instance.id.as_ref().unwrap();
+    let redis_password = "REDIS_PASSWORD".to_string();
+    let redis_username = "REDIS_USERNAME".to_string();
+    let redis_host = "REDIS_HOST".to_string();
+    let redis_port = "REDIS_PORT".to_string();
+    let chill_zone_duration_in_seconds = 5;
 
-info!("💳 generated unique peer identifier (look inside `wallexerr-keys` folder): [{}]", id);
+    let hadead_instance = hadead::Config{
+        redis_host,
+        redis_port,
+        redis_password: Some(redis_password),
+        redis_username: None,
+        chill_zone_duration_in_seconds, /* default is 5 miliseconds */
+        id: None
+    };
 
-had_instance.check(id).await
+    hadead_instance
+
+});
+
+pub async fn api(){
+
+    let hadead = HADEAD.clone();
+    if let Err(why) = hadead.check(hadead.id.as_ref().unwrap()).await{
+        eprintln!("hadead redis error because: {}", why.to_string());
+    }
+
+}
 ```
