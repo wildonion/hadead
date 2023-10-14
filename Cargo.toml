@@ -1,6 +1,6 @@
 [package]
 name = "hadead"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 authors = ["wildonion <abarmardeatashyne@gmail.com>"]
 description = "Redis Rate Limiter using wallexerr"

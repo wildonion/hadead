@@ -8,12 +8,12 @@ Redis Rate Limiter based on [wallexerr](https://crates.io/crates/wallexerr) **ed
 ## 🚀 Run in Local
 
 ```bash
-cargo run --bin had
+cargo run --bin hadead
 ```
 
 ## 🧪 Test
 
-> `hadead.contract is a contract data contains the wallet info`.
+> `hadead.contract` is a contract data contains the wallet info.
 
 ```rust
 use hadead::*;
