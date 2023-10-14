@@ -1,27 +1,19 @@
 
 
 
-# 📛 Had
+# 📛 Hadead
 
-Redis Rate Limiter with Crypto Wallets as the Unique Identifier.
+Redis Rate Limiter based on [wallexerr](https://crates.io/crates/wallexerr) **ed25519** public key as the unique identifier.
 
-> Make sure that you've filled up the env vars inside `.env` file, also make sure you've installed the wallexerr crate using ```cargo add wallexerr```.
-
-## 🚀 Run
+## 🚀 Run in Local
 
 ```bash
 cargo run --bin had
 ```
 
-## 📦 Publish
-
-```bash
-cargo login
-cargo publish --dry-run
-cargo publish
-```
-
 ## 🧪 Test
+
+> `hadead.contract is a contract data contains the wallet info`.
 
 ```rust
 use hadead::*;
@@ -51,6 +43,8 @@ pub static HADEAD: Lazy<Config> = Lazy::new(||{
 pub async fn api() -> Result<actix_web::HttpResponse, actix_web::Error>{
 
     let hadead = HADEAD.clone();
+    println!("hadead contract info: {:?}", hadead.contract.unwrap());
+
     let check_rate_limited = hadead.check(hadead.id.as_ref().unwrap()).await;
     
     let Ok(flag) = check_rate_limited else{

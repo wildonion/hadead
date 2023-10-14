@@ -16,14 +16,15 @@ use wallexerr::*;
 
 
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct Config{
     pub redis_password: Option<String>,
     pub redis_username: Option<String>,
     pub redis_host: String,
     pub redis_port: String,
     pub chill_zone_duration_in_seconds: u64,
-    pub id: Option<String>
+    pub id: Option<String>,
+    pub contract: Option<Contract>
 }
 
 
@@ -51,7 +52,8 @@ impl Config{
             redis_host: redis_host.to_string(), 
             redis_port: redis_port.to_string(),
             chill_zone_duration_in_seconds,
-            id: Some(id)
+            id: Some(id),
+            contract: Some(contract)
         }
 
     }
@@ -64,7 +66,8 @@ impl Config{
             redis_host, 
             redis_port, 
             chill_zone_duration_in_seconds,
-            id
+            id,
+            contract
         } = self; /* unpacking self */
 
         /* 
