@@ -48,11 +48,36 @@ pub static HADEAD: Lazy<Config> = Lazy::new(||{
 
 });
 
-pub async fn api(){
+pub async fn api() -> Result<actix_web::HttpResponse, actix_web::Error>{
 
     let hadead = HADEAD.clone();
-    if let Err(why) = hadead.check(hadead.id.as_ref().unwrap()).await{
-        eprintln!("hadead redis error because: {}", why.to_string());
+    let check_rate_limited = hadead.check(hadead.id.as_ref().unwrap()).await;
+    
+    let Ok(flag) = check_rate_limited else{
+        
+        let why = check_rate_limited.unwrap_err();
+        return Ok(
+            HttpResponse::NotAcceptable().json(why.to_string())
+        );
+    };
+
+    if flag{
+
+        // rate limited
+
+        return Ok(
+            HttpResponse::NotAcceptable().json("rate limited")
+        );
+
+    } else{
+
+        // other api logic
+        // ...
+
+        return Ok(
+            HttpResponse::Ok().json("json data")
+        );
+
     }
 
 }
