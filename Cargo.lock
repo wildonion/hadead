@@ -560,7 +560,7 @@ dependencies = [
 
 [[package]]
 name = "hadead"
-version = "0.1.3"
+version = "0.1.5"
 dependencies = [
  "chrono",
  "env_logger",
