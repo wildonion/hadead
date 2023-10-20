@@ -43,7 +43,7 @@ impl Config{
             "chill_zone_duration_in_seconds": chill_zone_duration_in_seconds
         });
 
-        let contract = generate_ed25519_contract(hadead_instance.as_str().unwrap());
+        let contract = generate_ed25519_contract(&hadead_instance.to_string());
         let id = contract.wallet.ed25519_public_key.clone().unwrap();
 
         Config { 
