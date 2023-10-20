@@ -27,15 +27,13 @@ pub static HADEAD: Lazy<Config> = Lazy::new(||{
     let redis_port = "REDIS_PORT".to_string();
     let chill_zone_duration_in_seconds = 5;
 
-    let hadead_instance = hadead::Config{
-        redis_host,
-        redis_port,
-        redis_password: Some(redis_password),
-        redis_username: None,
+    let hadead_instance = hadead::Config::new(
+        &redis_password,
+        &redis_username,
+        &redis_host,
+        &redis_port,
         chill_zone_duration_in_seconds, /* default is 5 miliseconds */
-        id: None,
-        contract: None,
-    };
+    );
 
     hadead_instance
 
