@@ -1,6 +1,6 @@
 [package]
 name = "hadead"
-version = "0.1.9"
+version = "0.2.0"
 edition = "2021"
 authors = ["wildonion <abarmardeatashyne@gmail.com>"]
 description = "Redis Rate Limiter using wallexerr"
@@ -19,7 +19,7 @@ env_logger = "0.10.0"
 log = "0.4"
 serde = {version = "1", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
-wallexerr = "0.2.3"
+wallexerr = "0.2.4"
 
 
 [lib]

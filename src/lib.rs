@@ -169,7 +169,7 @@ fn generate_ed25519_contract(hadead_instance: &str) -> wallexerr::Contract{
     
     let signature_hex = Wallet::ed25519_sign(stringify_data.clone().as_str(), contract.wallet.ed25519_secret_key.as_ref().unwrap().as_str());
     
-    let hash_of_data = Wallet::generate_sha256_from(&stringify_data);
+    let hash_of_data = Wallet::generate_keccak256_hash_from(&stringify_data);
     let verify_res = Wallet::verify_ed25519_signature(signature_hex.clone().unwrap().as_str(), hash_of_data.as_slice(), contract.wallet.ed25519_public_key.clone().unwrap().as_str());
 
     let keypair = Wallet::retrieve_ed25519_keypair(
